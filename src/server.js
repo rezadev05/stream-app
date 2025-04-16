@@ -601,6 +601,10 @@ app.get("/api/videos", requireAuthAPI, async (req, res) => {
   const offset = (page - 1) * limit;
   const uploadsDir = path.join(__dirname, "uploads");
 
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+
   try {
     const allFiles = fs.readdirSync(uploadsDir).filter((file) => {
       const isVideoFile = [".mp4", ".mkv", ".avi"].includes(
@@ -672,6 +676,10 @@ app.get("/api/audios", requireAuthAPI, async (req, res) => {
   const limit = parseInt(req.query.limit) || 8;
   const offset = (page - 1) * limit;
   const uploadsDir = path.join(__dirname, "uploads");
+
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
 
   try {
     const allFiles = fs.readdirSync(uploadsDir).filter((file) => {
