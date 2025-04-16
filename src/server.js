@@ -1135,7 +1135,7 @@ app.post(
           containerId: containerId,
           videoPath: videoFilePath,
           audioPath: audioFilePath,
-          audio_file,
+          audio_file: audio_file,
           duration: duration,
         };
 
@@ -1633,6 +1633,7 @@ function scheduleStream(streamData, startTime, duration) {
         containerId: streamData.containerId,
         videoPath: streamData.videoPath,
         audioPath: streamData.audioPath,
+        audio_file: streamData.audio_file,
       };
 
       command.run();
