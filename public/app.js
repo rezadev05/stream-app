@@ -750,7 +750,7 @@ function createContainer(containerData) {
       stopStreamBtn.classList.add("bg-red-500", "hover:bg-red-600");
 
       if (!scheduleStart) {
-        liveNotif.classList.add("hidden");
+        liveNotif.classList.remove("hidden");
       } else {
         liveNotif.classList.remove("hidden");
       }

@@ -1039,30 +1039,30 @@ app.post(
         "-pix_fmt yuv420p",
         "-g 60",
         `-vf scale=${resolution}`,
+        "-c:a aac",
+        "-b:a 128k",
+        "-ar 44100",
+        "-f flv",
       ];
 
       if (audio_file && audioFilePath) {
         outputOptions.push(
           "-map 0:v:0", // video dari input 0 (video)
-          "-map 1:a:0", // audio dari input 1 (audio eksternal)
-          "-c:a aac",
-          "-b:a 128k",
-          "-ar 44100"
+          "-map 1:a:0" // audio dari input 1 (audio eksternal)
         );
       } else {
         outputOptions.push(
           "-map 0:v:0", // video dari input 0
-          "-map 0:a?", // audio dari input 0 jika ada
-          "-c:a aac",
-          "-b:a 128k",
-          "-ar 44100"
+          "-map 0:a?" // audio dari input 0 jika ada
         );
       }
 
-      outputOptions.push("-f flv");
-
       command.outputOptions(outputOptions);
       command.output(`${rtmp_url}/${stream_key}`);
+
+      command.on("start", async (cmdLine) => {
+        console.log("FFmpeg started:", cmdLine);
+      });
 
       const duration = parseInt(schedule_duration, 10) * 60 * 1000; // Convert menit ke ms
       if (schedule_enabled === "1" && duration) {
@@ -1168,20 +1168,28 @@ app.post(
               }
             );
           })
+
           .on("error", (err) => {
             console.error("Stream error:", err);
             delete streams[stream_key];
-            deleteFile(videoFilePath);
 
-            if (audio_file && audioFilePath) {
-              deleteFile(audioFilePath);
-            }
+            database.deleteStreamContainer(containerId, (err) => {
+              if (err) console.error("Error delete database:", err);
+              deleteFile(videoFilePath);
+
+              if (audio_file && audioFilePath) {
+                deleteFile(audioFilePath);
+              }
+              console.log("Stream container deleted:", containerId);
+            });
 
             if (!responseSent) {
               sendError(res, "Error during streaming", 500);
               responseSent = true;
             }
           })
+
+          //JALANKAN STREAMING
           .run();
 
         setTimeout(() => {
@@ -1528,6 +1536,17 @@ function scheduleStream(streamData, startTime, duration) {
   const delayMs = startTime - Date.now();
 
   const timeout = setTimeout(async () => {
+    console.log("start-schedule:", {
+      videoPath: streamData.videoPath,
+      audioPath: streamData.audioPath,
+      rtmp_url: streamData.rtmp_url,
+      bitrate: streamData.bitrate,
+      fps: streamData.fps,
+      resolution: streamData.resolution,
+      loop: streamData.loop,
+      audio_file: streamData.audio_file,
+    });
+
     try {
       await new Promise((resolve, reject) => {
         database.updateStreamContainer(
@@ -1570,30 +1589,27 @@ function scheduleStream(streamData, startTime, duration) {
         "-maxrate:v 4000k",
         "-bufsize:v 8000k",
         "-pix_fmt yuv420p",
+        "-f flv",
       ];
 
       if (streamData.audio_file && streamData.audioPath) {
         outputOptions.push(
           "-map 0:v:0", // video dari input video
-          "-map 1:a:0", // audio dari input audio eksternal
-          "-c:a aac",
-          "-b:a 128k",
-          "-ar 44100"
+          "-map 1:a:0" // audio dari input audio eksternal
         );
       } else {
         outputOptions.push(
           "-map 0:v:0", // video dari input video
-          "-map 0:a?", // audio dari input video jika ada
-          "-c:a aac",
-          "-b:a 128k",
-          "-ar 44100"
+          "-map 0:a?" // audio dari input video jika ada
         );
       }
 
-      outputOptions.push("-f flv");
-
       command.outputOptions(outputOptions);
       command.output(`${streamData.rtmp_url}/${streamData.stream_key}`);
+
+      command.on("start", async (cmdLine) => {
+        console.log("FFmpeg started:", cmdLine);
+      });
 
       command.on("error", (err) => {
         if (err.message.includes("SIGTERM")) {
