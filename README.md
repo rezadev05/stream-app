@@ -30,6 +30,7 @@ $ apt install ffmpeg -y
 $ npm install -g pm2
 $ git clone https://github.com/rezadev05/stream-app.git
 $ cd stream-app
+$ npm install
 $ pm2 start ecosystem.config.js --only stream-app
 ```
 
