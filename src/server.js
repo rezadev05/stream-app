@@ -1169,7 +1169,12 @@ app.post(
             );
           })
 
-          .on("error", (err) => {
+          .on("error", (err, signal) => {
+            if (signal === "SIGTERM") {
+              console.log("Streaming dihentikan:", stream_key);
+              return;
+            }
+
             console.error("Stream error:", err);
             delete streams[stream_key];
 
@@ -1229,8 +1234,8 @@ app.post("/stop-stream", async (req, res) => {
       }
 
       if (stream.process && stream.process.ffmpegProc) {
-        stream.process.on("error", (err) => {
-          if (err.message.includes("SIGTERM")) {
+        stream.process.on("error", (err, signal) => {
+          if (signal === "SIGTERM") {
             return;
           }
           console.error("FFmpeg error:", err);
@@ -1534,6 +1539,8 @@ app.post(
 function scheduleStream(streamData, startTime, duration) {
   const streamKey = streamData.stream_key;
   const delayMs = startTime - Date.now();
+
+  console.log(`Menjadwalkan streaming untuk ${streamKey} dalam ${delayMs} ms`);
 
   const timeout = setTimeout(async () => {
     console.log("start-schedule:", {
