@@ -13,7 +13,6 @@ module.exports = {
       env_development: {
         NODE_ENV: "development",
       },
-      post_install: "npm install",
     },
     {
       name: "reset-password",
