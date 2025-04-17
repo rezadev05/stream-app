@@ -2,6 +2,6 @@
 /src/database.sqlite
 /src/uploads/
 /src/uploadsTemp/
-/src/thumbnails/*
 /package-lock.json
 /stream-app
+/stream-app-V1.0.0.zip
