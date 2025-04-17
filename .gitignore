@@ -3,3 +3,4 @@
 /src/uploads/
 /src/uploadsTemp/
 /src/thumbnails/*
+/package-lock.json

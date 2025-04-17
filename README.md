@@ -1,111 +1,54 @@
+[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#table-of-contents)
+
 <br>
 <div align="center">
-<img alt="LOGO" src="https://raw.githubusercontent.com/bangtutorial/streamflow/refs/heads/main/public/img/logo.png" width="420" height="auto" />
+<img alt="rezadev05" src="./public/img/logo.png" width="420" height="auto" />
 </div>
 <br>
 
+# 🎥 StreamApp - Application For Live Streaming With RTMP Protcol.
 
+<p align="center">
+<img width="" src="https://img.shields.io/github/repo-size/rezadev05/stream-app?color=green&label=Repo%20Size&style=for-the-badge&logo=appveyor">
+</p>
 
-# StreamFlow: Aplikasi Live Streaming Multi-Window
+StreamApp is a live streaming application, which allows you to go live on multiple platforms such as YouTube, Facebook and others. Using <b>RTMP</b> protocol, it can be run on VPS and other servers.
 
-StreamFlow adalah aplikasi live streaming yang memungkinkan kamu untuk melakukan live streaming ke berbagai platform seperti YouTube, Facebook, dan lainnya menggunakan protokol RTMP. Aplikasi ini berjalan di VPS (Virtual Private Server) dan mendukung streaming ke banyak platform sekaligus dengan fitur multi-window. StreamFlow juga dilengkapi dengan fitur login, gallery dan history streaming untuk melacak history streaming.
-   <p align="center">
-   <img alt="screenshot" src="https://raw.githubusercontent.com/bangtutorial/streamflow/refs/heads/main/public/img/screenshot.jpg" width="500px" height="auto" />
+<p align="center">
+   <img alt="screenshot" src="./public/img/preview-app.png" width="500px" height="auto" />
    </p>
 
-## Fitur Utama:
+<p align="center">
+   <b>### How To Install ###</b>
+</p>
 
-* **Multi-Window Streaming:** Bisa melakukan streaming ke beberapa platform sekaligus dalam satu aplikasi.
-* **Dukungan Banyak Platform:** Bisa streaming ke YouTube, Facebook, dan platform lain yang mendukung RTMP.
-* **Login Page:** Ada fitur login supaya hanya pemilik akun yang bisa akses aplikasi.
-* **Riwayat Streaming:** Semua aktivitas streaming tersimpan, jadi bisa dilihat kembali kapan saja.
+```bash
+$ apt update && apt upgrade
+$ apt install git -y
+$ apt install nodejs -y
+$ apt install ffmpeg -y
+$ npm install -g pm2
+$ git clone https://github.com/rezadev05/stream-app.git
+$ cd stream-app
+$ pm2 start ecosystem.config.js --only stream-app
+```
 
-## Cara Instalasi:
+> **⚠️** <b>Note</b> This program must be run using nodejs version 20 or higher!
 
-**Sebelum mulai:** Pastikan server / VPS kamu sudah terinstall Node.js, npm, dan FFmpeg sebelum meng-clone repositori ini.
+## Thanks To
 
-1. **Install Node.js dan npm melalui NodeSource PPA:**
+- [`bangtutorial`](https://github.com/bangtutorial) (Base This Program⭐)
+- [`rezadev05`](https://github.com/rezadev05)
 
-   ```bash
-   curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-   sudo apt-get install -y nodejs
-   sudo apt-get install -y npm
-   ```
-   Cek apakah instalasi berhasil:
-   ```bash
-   node -v
-   npm -v
-   ```
+`I would like to thank all contributors who helped create this source code.`
 
-2. **Install FFmpeg:**
+## Donate
 
-   ```bash
-   sudo apt-get update
-   sudo apt-get install -y ffmpeg
-   ```
-   Cek apakah instalasi berhasil:
-   ```bash
-   ffmpeg -version
-   ```
-   
-3. **Install PM2:**
+<a href="https://saweria.co/rezadev05" target="_blank"><img src="https://user-images.githubusercontent.com/26188697/180601310-e82c63e4-412b-4c36-b7b5-7ba713c80380.png" alt="Donate For Reza" height="41" width="174"></a>
+<a href="https://github.com/rezadev05/rezadev05/blob/main/bitcoin.json" target="_blank"><img src="https://github.com/rezadev05/rezadev05/blob/main/assets/bitcoin.png?raw=true" alt="Donate For Reza" height="41" width="174"></a>
 
-   ```bash
-   npm install -g pm2
-   ```
+## License
 
-4. **Clone Repositori:**
-   ```bash
-   git clone https://github.com/bangtutorial/streamflow/
-   cd streamflow
-   ```
+[MIT License](https://github.com/rezadev05/stream-app/LICENSE)
 
-5. **Install Dependensi:**
-   Jalankan `npm install` untuk menginstal semua modul Node.js yang dibutuhkan seperti Express.js, SQLite3, bcryptjs, dan lainnya.
-
-   ```bash
-   npm install
-   ```
-
-6. **Jalankan Aplikasi:**
-
-   Kembali ke directory root (jika masih di directory streamflow)
-   ```bash
-   cd ..
-   ```
-
-   🚀 Perintah menjalankan aplikasi ✨
-   ```bash
-   pm2 start streamflow
-   pm2 logs streamflow -i 0 --lines 1
-   ```
-
-   📈 Melihat status aplikasi berjalan
-   ```bash
-   pm2 status streamflow
-   ```
-
-   ⛔ Menghentikan aplikasi
-   ```bash
-   pm2 stop streamflow
-   ```
-
-8. **Konfigurasi:**
-    * Pastikan kamu sudah mengatur URL RTMP yang sesuai untuk setiap platform yang ingin digunakan. Konfigurasi ini bisa dilakukan langsung melalui tampilan aplikasi.
-    * Silahkan dapatkan Stream Key dari platform streaming yang kamu gunakan.
-
-## Informasi Tambahan:
-
-* Aplikasi ini menggunakan Express.js sebagai backend, SQLite sebagai database, dan FFmpeg untuk encoding serta streaming.
-* Antarmuka pengguna dibuat dengan HTML, CSS, dan JavaScript, serta menggunakan Tailwind CSS untuk styling.
-* Aplikasi ini dirancang untuk berjalan di server dengan Node.js, bukan di browser lokal.
-
-## Kontribusi:
-
-Jika teman-teman punya ide atau perbaikan koding aplikasi ini, silakan buat pull request 🤝
-
-## Lisensi:
-
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/bangtutorial/streamflow/blob/main/LICENSE)
-
-Hak Cipta © 2025 - [Bang Tutorial](https://youtube.com/bangtutorial)
+`Copyright (c) 2025 rezadev05`
