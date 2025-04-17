@@ -1070,7 +1070,9 @@ app.post(
           if (streams[stream_key]) {
             try {
               streams[stream_key].process.on("error", (err) => {
-                if (err.message.includes("SIGTERM")) {
+                if (
+                  err.message.includes("Exiting normally, received signal 15")
+                ) {
                   return;
                 }
                 console.error("FFmpeg error:", err);
@@ -1169,8 +1171,8 @@ app.post(
             );
           })
 
-          .on("error", (err, signal) => {
-            if (signal === "SIGTERM") {
+          .on("error", (err) => {
+            if (err.message.includes("Exiting normally, received signal 15")) {
               console.log("Streaming dihentikan:", stream_key);
               return;
             }
@@ -1234,8 +1236,8 @@ app.post("/stop-stream", async (req, res) => {
       }
 
       if (stream.process && stream.process.ffmpegProc) {
-        stream.process.on("error", (err, signal) => {
-          if (signal === "SIGTERM") {
+        stream.process.on("error", (err) => {
+          if (err.message.includes("Exiting normally, received signal 15")) {
             return;
           }
           console.error("FFmpeg error:", err);
@@ -1619,7 +1621,7 @@ function scheduleStream(streamData, startTime, duration) {
       });
 
       command.on("error", (err) => {
-        if (err.message.includes("SIGTERM")) {
+        if (err.message.includes("Exiting normally, received signal 15")) {
           return;
         }
         console.error("FFmpeg error:", err);
