@@ -2,3 +2,4 @@
 /src/database.sqlite
 /src/uploads/
 /src/uploadsTemp/
+/src/thumbnails/*

@@ -1793,7 +1793,7 @@ async function loadScheduledStreams() {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(
-    `\x1b[32mStreamApp Running\x1b[0m\nAkses app on \x1b[34mhttp://${ipAddress}:${PORT}\x1b[0m`
+    `\x1b[32mStreamApp Running\x1b[0m\nAccess app on \x1b[34mhttp://${ipAddress}:${PORT}\x1b[0m`
   );
   loadScheduledStreams();
 });
