@@ -902,7 +902,14 @@ app.post(
       const videoFile = req.files["video"]?.[0];
       const audioFile = req.files["audio"]?.[0];
 
-      if (streams[stream_key]) {
+      const isKeyUsedInDB = await new Promise((resolve, reject) => {
+        database.getStreamContainerByKey(stream_key, (err, row) => {
+          if (err) return reject(err);
+          resolve(row && row.is_streaming === 1);
+        });
+      });
+
+      if (streams[stream_key] && isKeyUsedInDB) {
         return sendError(
           res,
           "Stream key sudah digunakan. Mohon gunakan stream key lain atau hentikan stream yang sedang berjalan."
@@ -1638,6 +1645,7 @@ function scheduleStream(streamData, startTime, duration) {
 
       command.on("error", (err) => {
         if (err.message.includes("Exiting normally, received signal 15")) {
+          console.log("Streaming dihentikan:", streamKey);
           return;
         }
         deleteFile(streamData.videoPath);
@@ -1648,8 +1656,20 @@ function scheduleStream(streamData, startTime, duration) {
         console.error("FFmpeg error:", err);
       });
 
+      console.log("Scheduled stream ended:", streamKey);
       command.on("end", () => {
-        console.log("Scheduled stream ended:", streamKey);
+        database.updateStreamContainer(
+          streamData.containerId,
+          { is_streaming: 0 },
+          (err) => {
+            if (err) console.error("Error updating database:", err);
+            deleteFile(streamData.audioPath);
+
+            if (streamData.audio_file && streamData.audioFilePath) {
+              deleteFile(streamData.audioPath);
+            }
+          }
+        );
         streams[streamKey] = null;
         scheduledStreams.delete(streamKey);
       });

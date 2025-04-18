@@ -232,6 +232,11 @@ const getActiveStreamContainers = (callback) => {
   );
 };
 
+const getStreamContainerByKey = (streamKey, callback) => {
+  const query = `SELECT * FROM stream_containers WHERE stream_key = ? AND is_streaming = 1 LIMIT 1`;
+  db.get(query, [streamKey], callback);
+};
+
 // Mengambil stream container berdasarkan stream key.
 const getStreamContainerByStreamKey = (streamKey, callback) => {
   db.get(
@@ -311,6 +316,7 @@ module.exports = {
   updateStreamContainer,
   getStreamContainers,
   getActiveStreamContainers,
+  getStreamContainerByKey,
   getStreamContainerByStreamKey,
   getHistoryStreamContainers,
   deleteStreamContainer,
