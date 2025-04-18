@@ -902,6 +902,13 @@ app.post(
       const videoFile = req.files["video"]?.[0];
       const audioFile = req.files["audio"]?.[0];
 
+      if (streams[stream_key]) {
+        return sendError(
+          res,
+          "Stream key sudah digunakan. Mohon gunakan stream key lain atau hentikan stream yang sedang berjalan."
+        );
+      }
+
       if (!videoFile) return sendError(res, "Video tidak ditemukan");
       // if (!audioFile) return sendError(res, "Audio tidak ditemukan");
       if (!title) return sendError(res, "Judul belum diisi");
@@ -1629,7 +1636,6 @@ function scheduleStream(streamData, startTime, duration) {
           return;
         }
         console.error("FFmpeg error:", err);
-        console.log(streamData.audioFilePath);
       });
 
       command.on("end", () => {
@@ -1794,11 +1800,9 @@ async function loadScheduledStreams() {
               "uploads",
               container.stream_file_video
             ),
-            audioPath: path.join(
-              __dirname,
-              "uploads",
-              container.stream_file_audio
-            ),
+            audioPath: container.stream_file_audio
+              ? path.join(__dirname, "uploads", container.stream_file_audio)
+              : null,
             stream_key: container.stream_key,
             rtmp_url: container.stream_url,
             containerId: container.id,
@@ -1819,10 +1823,43 @@ async function loadScheduledStreams() {
   }
 }
 
+async function loadActiveStreams() {
+  try {
+    const containers = await new Promise((resolve, reject) => {
+      database.getActiveStreamContainers((err, rows) => {
+        if (err) reject(err);
+        resolve(rows);
+      });
+    });
+
+    for (const container of containers) {
+      const streamKey = container.stream_key;
+      streams[streamKey] = {
+        process: null,
+        startTime: Date.now(),
+        containerId: container.id,
+        videoPath: path.join(__dirname, "uploads", container.stream_file_video),
+        audioPath: container.stream_file_audio
+          ? path.join(__dirname, "uploads", container.stream_file_audio)
+          : null,
+        audio_file: container.audio_enabled === 1 ? "true" : "false",
+        duration: container.schedule_duration
+          ? container.schedule_duration * 60 * 1000
+          : null,
+      };
+    }
+
+    console.log("Active streams loaded:", Object.keys(streams));
+  } catch (err) {
+    console.error("Failed to load active streams:", err);
+  }
+}
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(
     `\x1b[32mStreamApp Running\x1b[0m\nAccess app on \x1b[34mhttp://${ipAddress}:${PORT}\x1b[0m`
   );
   loadScheduledStreams();
+  loadActiveStreams();
 });
