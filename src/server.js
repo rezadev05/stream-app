@@ -1094,6 +1094,11 @@ app.post(
                 }
               );
 
+              deleteFile(videoFilePath);
+
+              if (audio_file && audioFilePath) {
+                deleteFile(audioFilePath);
+              }
               delete streams[stream_key];
             } catch (error) {
               console.error("Error stopping stream:", error);
@@ -1635,6 +1640,11 @@ function scheduleStream(streamData, startTime, duration) {
         if (err.message.includes("Exiting normally, received signal 15")) {
           return;
         }
+        deleteFile(streamData.videoPath);
+
+        if (streamData.audio_file && streamData.audioPath) {
+          deleteFile(streamData.audioPath);
+        }
         console.error("FFmpeg error:", err);
       });
 
@@ -1661,6 +1671,11 @@ function scheduleStream(streamData, startTime, duration) {
                 }
               );
 
+              deleteFile(streamData.videoPath);
+
+              if (streamData.audio_file && streamData.audioPath) {
+                deleteFile(streamData.audioPath);
+              }
               delete streams[streamKey];
               scheduledStreams.delete(streamKey);
             }
@@ -1677,6 +1692,7 @@ function scheduleStream(streamData, startTime, duration) {
         videoPath: streamData.videoPath,
         audioPath: streamData.audioPath,
         audio_file: streamData.audio_file,
+        duration: duration,
       };
 
       command.run();
