@@ -1101,7 +1101,9 @@ app.post(
                 }
               );
 
-              deleteFile(videoFilePath);
+              if (videoFilePath) {
+                deleteFile(videoFilePath);
+              }
 
               if (audio_file && audioFilePath) {
                 deleteFile(audioFilePath);
@@ -1181,7 +1183,9 @@ app.post(
               { is_streaming: 0 },
               (err) => {
                 if (err) console.error("Error updating database:", err);
-                deleteFile(videoFilePath);
+                if (videoFilePath) {
+                  deleteFile(videoFilePath);
+                }
 
                 if (audio_file && audioFilePath) {
                   deleteFile(audioFilePath);
@@ -1201,7 +1205,9 @@ app.post(
 
             database.deleteStreamContainer(containerId, (err) => {
               if (err) console.error("Error delete database:", err);
-              deleteFile(videoFilePath);
+              if (videoFilePath) {
+                deleteFile(videoFilePath);
+              }
 
               if (audio_file && audioFilePath) {
                 deleteFile(audioFilePath);
@@ -1274,7 +1280,9 @@ app.post("/stop-stream", async (req, res) => {
           { is_streaming: 0 },
           (err) => {
             if (err) return reject(err);
-            deleteFile(videoPath);
+            if (videoPath) {
+              deleteFile(videoPath);
+            }
 
             if (audio_file && audioPath) {
               deleteFile(audioPath);
@@ -1648,9 +1656,11 @@ function scheduleStream(streamData, startTime, duration) {
           console.log("Streaming dihentikan:", streamKey);
           return;
         }
-        deleteFile(streamData.videoPath);
+        if (streamData.videoPath) {
+          deleteFile(streamData.videoPath);
+        }
 
-        if (streamData.audio_file && streamData.audioPath) {
+        if (streamData.audio_file && streamData.audioFilePath) {
           deleteFile(streamData.audioPath);
         }
         console.error("FFmpeg error:", err);
@@ -1663,7 +1673,9 @@ function scheduleStream(streamData, startTime, duration) {
           { is_streaming: 0 },
           (err) => {
             if (err) console.error("Error updating database:", err);
-            deleteFile(streamData.audioPath);
+            if (streamData.videoPath) {
+              deleteFile(streamData.videoPath);
+            }
 
             if (streamData.audio_file && streamData.audioFilePath) {
               deleteFile(streamData.audioPath);
@@ -1691,9 +1703,11 @@ function scheduleStream(streamData, startTime, duration) {
                 }
               );
 
-              deleteFile(streamData.videoPath);
+              if (streamData.videoPath) {
+                deleteFile(streamData.videoPath);
+              }
 
-              if (streamData.audio_file && streamData.audioPath) {
+              if (streamData.audio_file && streamData.audioFilePath) {
                 deleteFile(streamData.audioPath);
               }
               delete streams[streamKey];
