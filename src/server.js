@@ -1656,8 +1656,8 @@ function scheduleStream(streamData, startTime, duration) {
         console.error("FFmpeg error:", err);
       });
 
-      console.log("Scheduled stream ended:", streamKey);
       command.on("end", () => {
+        console.log("Scheduled stream ended:", streamKey);
         database.updateStreamContainer(
           streamData.containerId,
           { is_streaming: 0 },
