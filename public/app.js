@@ -1296,7 +1296,7 @@ function addStartStream(container) {
       if (error.name === "AbortError") {
         await Swal.fire({
           icon: "success",
-          title: "Download Dibatalkan",
+          title: "Penyapan Dibatalkan",
           text: "Penyiapan media dibatalkan.",
         });
       } else {
