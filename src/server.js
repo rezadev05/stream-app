@@ -519,7 +519,6 @@ app.get("/video/:filename", (req, res) => {
     res.writeHead(200, {
       "Content-Type": "video/mp4",
       "Content-Length": stat.size,
-      "Content-Disposition": `attachment; filename="${filename}"`,
     });
 
     const readStream = fs.createReadStream(filePath);

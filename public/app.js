@@ -353,6 +353,32 @@ function createContainer(containerData) {
         </div>
       </div>
     </div>
+    <div class="hidden fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center uploadModal">
+      <div class="bg-white rounded-xl max-w-md w-full mx-4">
+        <div class="flex justify-between items-center p-4 border-b">
+          <h3 class="text-xl font-semibold text-gray-900">Upload Video</h3>
+          <button id="closeUpload" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <i class="fa-solid fa-xmark text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+        <div class="hidden mt-4 uploadProgress">
+                    <div class="mb-2 flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Uploading...</span>
+                        <span class="text-sm font-medium text-gray-900 uploadPercentage">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden mb-3">
+                        <div class="bg-blue-500 h-full rounded-full transition-all duration-300 ease-out uploadProgressBar" style="width: 0%"></div>
+                    </div>
+                    <button
+                        class="w-full mt-2 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm font-medium cancelUpload">
+                        <i class="fa-solid fa-xmark"></i>
+                        Batalkan Upload
+                    </button>
+                </div>
+        </div>
+      </div>
+    </div>
   `;
 
   containersDiv.appendChild(container);
@@ -839,11 +865,11 @@ function addStartStream(container) {
     if (!videoFile && videoPath) {
       const fileName = videoPath.split("/").pop();
       try {
-        const response = await fetch(`/video/${encodeURIComponent(fileName)}`);
-        if (!response.ok) {
-          throw new Error("Gagal mengambil video dari server");
-        }
-        const blob = await response.blob();
+        const blob = await fetchWithProgress(
+          container,
+          `/video/${encodeURIComponent(fileName)}`,
+          "Video"
+        );
         videoFile = new File([blob], fileName, { type: blob.type });
       } catch (error) {
         await Swal.fire({
@@ -869,13 +895,11 @@ function addStartStream(container) {
         const fileName = audioPath.split("/").pop();
 
         try {
-          const response = await fetch(
-            `/audio/${encodeURIComponent(fileName)}`
+          const blob = await fetchWithProgress(
+            container,
+            `/audio/${encodeURIComponent(fileName)}`,
+            "Audio"
           );
-          if (!response.ok) {
-            throw new Error("Gagal mengambil audio dari server");
-          }
-          const blob = await response.blob();
           audioFile = new File([blob], fileName, { type: blob.type });
         } catch (error) {
           await Swal.fire({
@@ -1215,6 +1239,88 @@ function addStartStream(container) {
       removeAudioBtn.classList.remove("cursor-not-allowed");
 
       liveNotif.classList.add("hidden");
+    }
+  }
+
+  async function fetchWithProgress(container, url, type = "Video") {
+    const uploadModal = container.querySelector(".uploadModal");
+    const uploadProgressDiv = container.querySelector(".uploadProgress");
+    const uploadProgressBar = container.querySelector(".uploadProgressBar");
+    const uploadPercentage = container.querySelector(".uploadPercentage");
+    const cancelUploadBtn = container.querySelector(".cancelUpload");
+    const closeUploadBtn = container.querySelector("#closeUpload");
+    const uploadTitle = container.querySelector(".uploadModal h3");
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    uploadTitle.textContent = `Downloading ${type}...`;
+    uploadProgressBar.style.width = "0%";
+    uploadPercentage.textContent = "0%";
+    uploadModal.classList.remove("hidden");
+    uploadProgressDiv.classList.remove("hidden");
+
+    let reader;
+
+    cancelUploadBtn.onclick = () => {
+      controller.abort();
+      reader?.cancel();
+    };
+
+    closeUploadBtn.onclick = () => {
+      controller.abort();
+      reader?.cancel();
+      uploadModal.classList.add("hidden");
+    };
+
+    try {
+      const response = await fetch(url, { signal });
+
+      if (!response.ok) {
+        throw new Error("Gagal mengambil file dari server");
+      }
+
+      const contentLength = response.headers.get("Content-Length");
+      if (!contentLength) {
+        throw new Error("Tidak bisa membaca ukuran file.");
+      }
+
+      const total = parseInt(contentLength, 10);
+      reader = response.body.getReader();
+      let loaded = 0;
+      let chunks = [];
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        loaded += value.length;
+        const percent = Math.round((loaded / total) * 100);
+        uploadProgressBar.style.width = percent + "%";
+        uploadPercentage.textContent = percent + "%";
+      }
+
+      uploadModal.classList.add("hidden");
+      const blob = new Blob(chunks, {
+        type: response.headers.get("Content-Type"),
+      });
+      return blob;
+    } catch (error) {
+      uploadModal.classList.add("hidden");
+
+      if (error.name === "AbortError") {
+        await Swal.fire({
+          icon: "info",
+          title: "Download Dibatalkan",
+          text: "Pengambilan file dibatalkan.",
+        });
+      } else {
+        await Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Koneksi bermasalah, coba lagi!",
+        });
+      }
+      throw error;
     }
   }
 }
