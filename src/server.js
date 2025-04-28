@@ -519,7 +519,9 @@ app.get("/video/:filename", (req, res) => {
     res.writeHead(200, {
       "Content-Type": "video/mp4",
       "Content-Length": stat.size,
+      "Content-Disposition": `attachment; filename="${filename}"`,
     });
+
     const readStream = fs.createReadStream(filePath);
     readStream.pipe(res);
   });
@@ -909,7 +911,7 @@ app.post(
         });
       });
 
-      if (streams[stream_key] && isKeyUsedInDB) {
+      if (streams[stream_key] || isKeyUsedInDB) {
         return sendError(
           res,
           "Stream key sudah digunakan. Mohon gunakan stream key lain atau hentikan stream yang sedang berjalan."
