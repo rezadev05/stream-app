@@ -353,29 +353,25 @@ function createContainer(containerData) {
         </div>
       </div>
     </div>
-    <div class="hidden fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center uploadModal">
+    <div class="hidden fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center modal-media-load">
       <div class="bg-white rounded-xl max-w-md w-full mx-4">
         <div class="flex justify-between items-center p-4 border-b">
-          <h3 class="text-xl font-semibold text-gray-900">Upload Video</h3>
-          <button id="closeUpload" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <h3 class="text-xl font-semibold text-gray-900">Penyiapan media streaming</h3>
+          <button class="text-gray-400 hover:text-gray-600 transition-colors modal-media-close">
             <i class="fa-solid fa-xmark text-xl"></i>
           </button>
         </div>
         <div class="p-6">
-        <div class="hidden mt-4 uploadProgress">
-                    <div class="mb-2 flex justify-between items-center">
-                        <span class="text-sm text-gray-600">Uploading...</span>
-                        <span class="text-sm font-medium text-gray-900 uploadPercentage">0%</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden mb-3">
-                        <div class="bg-blue-500 h-full rounded-full transition-all duration-300 ease-out uploadProgressBar" style="width: 0%"></div>
-                    </div>
-                    <button
-                        class="w-full mt-2 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm font-medium cancelUpload">
-                        <i class="fa-solid fa-xmark"></i>
-                        Batalkan Upload
-                    </button>
-                </div>
+          <div class="hidden mt-4 media-progress">
+            <div class="mb-2 flex justify-between items-center">
+              <span class="text-sm text-gray-600">Menyiapkan media...</span>
+              <span class="text-sm font-medium text-gray-900 media-percentage">0%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden mb-3">
+              <div class="bg-blue-500 h-full rounded-full transition-all duration-300 ease-out media-progress-bar" style="width: 0%">
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -872,11 +868,6 @@ function addStartStream(container) {
         );
         videoFile = new File([blob], fileName, { type: blob.type });
       } catch (error) {
-        await Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: "Koneksi bermasalah, coba lagi!",
-        });
         return;
       }
     }
@@ -902,11 +893,6 @@ function addStartStream(container) {
           );
           audioFile = new File([blob], fileName, { type: blob.type });
         } catch (error) {
-          await Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: "Koneksi bermasalah, coba lagi!",
-          });
           return;
         }
       }
@@ -1243,45 +1229,41 @@ function addStartStream(container) {
   }
 
   async function fetchWithProgress(container, url, type = "Video") {
-    const uploadModal = container.querySelector(".uploadModal");
-    const uploadProgressDiv = container.querySelector(".uploadProgress");
-    const uploadProgressBar = container.querySelector(".uploadProgressBar");
-    const uploadPercentage = container.querySelector(".uploadPercentage");
-    const cancelUploadBtn = container.querySelector(".cancelUpload");
-    const closeUploadBtn = container.querySelector("#closeUpload");
-    const uploadTitle = container.querySelector(".uploadModal h3");
+    const modalMediaLoad = container.querySelector(".modal-media-load");
+    const mediaProgress = container.querySelector(".media-progress");
+    const mediaProgressBar = container.querySelector(".media-progress-bar");
+    const mediaPercentage = container.querySelector(".media-percentage");
+    const modalMediaClose = container.querySelector(".modal-media-close");
+    const modalMediaTitle = container.querySelector(".modal-media-load h3");
+
     const controller = new AbortController();
     const signal = controller.signal;
 
-    uploadTitle.textContent = `Downloading ${type}...`;
-    uploadProgressBar.style.width = "0%";
-    uploadPercentage.textContent = "0%";
-    uploadModal.classList.remove("hidden");
-    uploadProgressDiv.classList.remove("hidden");
+    modalMediaTitle.textContent = `Menyiapkan media ${type}...`;
+    mediaProgressBar.style.width = "0%";
+    mediaPercentage.textContent = "0%";
+    modalMediaLoad.classList.remove("hidden");
+    mediaProgress.classList.remove("hidden");
 
     let reader;
 
-    cancelUploadBtn.onclick = () => {
+    modalMediaClose.onclick = () => {
       controller.abort();
       reader?.cancel();
-    };
-
-    closeUploadBtn.onclick = () => {
-      controller.abort();
-      reader?.cancel();
-      uploadModal.classList.add("hidden");
+      modalMediaLoad.classList.add("hidden");
     };
 
     try {
       const response = await fetch(url, { signal });
 
       if (!response.ok) {
-        throw new Error("Gagal mengambil file dari server");
+        throw new Error("Gagal mengambil media dari server");
       }
 
       const contentLength = response.headers.get("Content-Length");
+
       if (!contentLength) {
-        throw new Error("Tidak bisa membaca ukuran file.");
+        throw new Error("Tidak bisa membaca ukuran media.");
       }
 
       const total = parseInt(contentLength, 10);
@@ -1292,26 +1274,30 @@ function addStartStream(container) {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
+
         chunks.push(value);
         loaded += value.length;
+
         const percent = Math.round((loaded / total) * 100);
-        uploadProgressBar.style.width = percent + "%";
-        uploadPercentage.textContent = percent + "%";
+        mediaProgressBar.style.width = percent + "%";
+        mediaPercentage.textContent = percent + "%";
       }
 
-      uploadModal.classList.add("hidden");
+      modalMediaLoad.classList.add("hidden");
+
       const blob = new Blob(chunks, {
         type: response.headers.get("Content-Type"),
       });
+
       return blob;
     } catch (error) {
-      uploadModal.classList.add("hidden");
+      modalMediaLoad.classList.add("hidden");
 
       if (error.name === "AbortError") {
         await Swal.fire({
-          icon: "info",
+          icon: "success",
           title: "Download Dibatalkan",
-          text: "Pengambilan file dibatalkan.",
+          text: "Penyiapan media dibatalkan.",
         });
       } else {
         await Swal.fire({
