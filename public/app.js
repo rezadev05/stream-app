@@ -262,9 +262,16 @@ function createContainer(containerData) {
                 value="${containerData?.schedule_duration || ""}"
                 disabled
               >
-              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <span class="text-gray-500 text-sm">menit</span>
-              </div>
+              <div class="absolute inset-y-0 right-0 flex items-center pr-2 space-x-1">
+    <select class="schedule-duration-unit bg-gray-50 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 border-gray-300 disabled:opacity-70" disabled>
+      <option value="minutes" ${
+        containerData?.schedule_duration_unit === "minutes" ? "selected" : ""
+      }>menit</option>
+      <option value="hours" ${
+        containerData?.schedule_duration_unit === "hours" ? "selected" : ""
+      }>jam</option>
+    </select>
+  </div>
             </div>
           </div>
         </div>
@@ -471,6 +478,7 @@ function createContainer(containerData) {
   const durationSwitch = container.querySelector(".schedule-duration-switch");
   const startInput = container.querySelector(".schedule-start");
   const durationInput = container.querySelector(".schedule-duration");
+  const durationUnit = container.querySelector(".schedule-duration-unit");
 
   if (containerData.schedule_enabled) {
     scheduleSwitch.checked = true;
@@ -486,8 +494,10 @@ function createContainer(containerData) {
     if (containerData.schedule_duration_enabled) {
       durationSwitch.checked = true;
       durationInput.disabled = false;
+      durationUnit.disabled = false;
       durationInput.classList.remove("bg-gray-50");
       durationInput.value = containerData.schedule_duration;
+      durationInput.value = containerData.schedule_duration_unit;
     }
   }
 
@@ -565,9 +575,12 @@ function createContainer(containerData) {
       durationInput.classList.remove("bg-gray-50");
       durationInput.value = "60";
       durationInput.focus();
+      durationUnit.disabled = false;
     } else {
       durationInput.classList.add("bg-gray-50");
       durationInput.value = "";
+      durationInput.disabled = true;
+      durationUnit.disabled = true;
     }
   });
 
@@ -609,8 +622,10 @@ function createContainer(containerData) {
   if (scheduleDurationEnabled) {
     durationSwitch.checked = true;
     durationInput.disabled = false;
+    durationInput.disabled = false;
     durationInput.classList.remove("bg-gray-50");
     durationInput.value = containerData.schedule_duration;
+    durationInput.value = containerData.schedule_duration_unit;
   }
 
   selectVideoBtn.addEventListener("click", async () => {
@@ -737,6 +752,7 @@ function createContainer(containerData) {
             durationInput.value = "";
             startInput.disabled = true;
             durationInput.disabled = true;
+            durationUnit.disabled = true;
             startInput.classList.add("bg-gray-50");
             durationInput.classList.add("bg-gray-50");
 
@@ -810,6 +826,7 @@ function addStartStream(container) {
   const durationSwitch = container.querySelector(".schedule-duration-switch");
   const startInput = container.querySelector(".schedule-start");
   const durationInput = container.querySelector(".schedule-duration");
+  const durationUnit = document.querySelector(".schedule-duration-unit");
 
   const stopStreamBtn = container.querySelector(".stop-stream");
   const removeVideoBtn = container.querySelector(".remove-video");
@@ -946,6 +963,10 @@ function addStartStream(container) {
     formData.append(
       "schedule_duration",
       hasDuration ? durationInput.value : ""
+    );
+    formData.append(
+      "schedule_duration_unit",
+      hasDuration ? durationUnit.value : ""
     );
 
     const scheduledTime = isScheduled

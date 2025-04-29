@@ -898,6 +898,7 @@ app.post(
         schedule_start_enabled,
         schedule_start,
         schedule_duration,
+        schedule_duration_unit,
       } = req.body;
 
       const videoFile = req.files["video"]?.[0];
@@ -965,7 +966,18 @@ app.post(
       if (schedule_enabled === "1" && schedule_start_enabled === "1") {
         const startTime = new Date(schedule_start).getTime();
         const duration = schedule_duration
-          ? parseInt(schedule_duration, 10) * 60 * 1000
+          ? (() => {
+              const parsedDuration = parseInt(schedule_duration, 10);
+              if (isNaN(parsedDuration)) return null;
+
+              if (schedule_duration_unit === "hours") {
+                return parsedDuration * 60 * 60 * 1000;
+              } else if (schedule_duration_unit === "minutes") {
+                return parsedDuration * 60 * 1000;
+              } else {
+                return null;
+              }
+            })()
           : null;
 
         const containerData = {
@@ -991,6 +1003,7 @@ app.post(
           ),
           schedule_start,
           schedule_duration: duration ? Math.floor(duration / 1000 / 60) : null,
+          schedule_duration_unit: schedule_duration_unit || null,
         };
 
         const result = await new Promise((resolve, reject) => {
@@ -1079,7 +1092,21 @@ app.post(
         console.log("FFmpeg started:", cmdLine);
       });
 
-      const duration = parseInt(schedule_duration, 10) * 60 * 1000; // Convert menit ke ms
+      const duration = schedule_duration
+        ? (() => {
+            const parsedDuration = parseInt(schedule_duration, 10);
+            if (isNaN(parsedDuration)) return null;
+
+            if (schedule_duration_unit === "hours") {
+              return parsedDuration * 60 * 60 * 1000;
+            } else if (schedule_duration_unit === "minutes") {
+              return parsedDuration * 60 * 1000;
+            } else {
+              return null;
+            }
+          })()
+        : null;
+
       if (schedule_enabled === "1" && duration) {
         setTimeout(() => {
           if (streams[stream_key]) {
@@ -1146,6 +1173,7 @@ app.post(
           schedule_duration: req.body.schedule_duration
             ? parseInt(req.body.schedule_duration, 10)
             : null,
+          schedule_duration_unit: req.body.schedule_duration_unit || null,
         };
 
         const result = await new Promise((resolve, reject) => {
@@ -1865,7 +1893,20 @@ async function loadScheduledStreams() {
           },
           new Date(container.schedule_start).getTime(),
           container.schedule_duration
-            ? container.schedule_duration * 60 * 1000
+            ? (() => {
+                const parsedDuration = parseInt(
+                  container.schedule_duration,
+                  10
+                );
+                if (isNaN(parsedDuration)) return null;
+                if (container.schedule_duration_unit === "hours") {
+                  return parsedDuration * 60 * 60 * 1000;
+                } else if (container.schedule_duration_unit === "minutes") {
+                  return parsedDuration * 60 * 1000;
+                } else {
+                  return null;
+                }
+              })()
             : null
         );
       });
@@ -1895,7 +1936,17 @@ async function loadActiveStreams() {
           : null,
         audio_file: container.audio_enabled === 1 ? "true" : "false",
         duration: container.schedule_duration
-          ? container.schedule_duration * 60 * 1000
+          ? (() => {
+              const parsedDuration = parseInt(container.schedule_duration, 10);
+              if (isNaN(parsedDuration)) return null;
+              if (container.schedule_duration_unit === "hours") {
+                return parsedDuration * 60 * 60 * 1000;
+              } else if (container.schedule_duration_unit === "minutes") {
+                return parsedDuration * 60 * 1000;
+              } else {
+                return null;
+              }
+            })()
           : null,
       };
     }

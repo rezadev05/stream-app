@@ -37,6 +37,7 @@ db.serialize(() => {
         schedule_duration_enabled INTEGER DEFAULT 0, -- 0 atau 1 sebagai boolean
         schedule_start DATETIME,
         schedule_duration INTEGER,
+        schedule_duration_unit TEXT,    -- Satuan durasi
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
@@ -133,8 +134,8 @@ const addStreamContainer = (data, callback) => {
       title, preview_file_video, preview_file_audio, stream_file_video, stream_file_audio, stream_key, stream_url, 
       bitrate, resolution, fps, loop_enabled, audio_enabled, container_order, 
       is_streaming, schedule_enabled, schedule_start_enabled,
-      schedule_duration_enabled, schedule_start, schedule_duration
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      schedule_duration_enabled, schedule_start, schedule_duration, schedule_duration_unit
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       data.title,
       data.preview_file_video,
@@ -155,6 +156,7 @@ const addStreamContainer = (data, callback) => {
       data.schedule_duration_enabled || 0,
       data.schedule_start || null,
       data.schedule_duration || null,
+      data.schedule_duration_unit || null,
     ],
     function (err) {
       if (err) {
