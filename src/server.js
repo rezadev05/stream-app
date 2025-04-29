@@ -1911,6 +1911,6 @@ app.listen(PORT, () => {
   console.log(
     `\x1b[32mStreamApp Running\x1b[0m\nAccess app on \x1b[34mhttp://${ipAddress}:${PORT}\x1b[0m`
   );
-  loadScheduledStreams();
   loadActiveStreams();
+  loadScheduledStreams();
 });
