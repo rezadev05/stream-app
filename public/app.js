@@ -831,7 +831,7 @@ function addStartStream(container) {
   const durationSwitch = container.querySelector(".schedule-duration-switch");
   const startInput = container.querySelector(".schedule-start");
   const durationInput = container.querySelector(".schedule-duration");
-  const durationUnit = document.querySelector(".schedule-duration-unit");
+  const durationUnit = container.querySelector(".schedule-duration-unit");
 
   const stopStreamBtn = container.querySelector(".stop-stream");
   const removeVideoBtn = container.querySelector(".remove-video");
