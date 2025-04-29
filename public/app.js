@@ -263,15 +263,19 @@ function createContainer(containerData) {
                 disabled
               >
               <div class="absolute inset-y-0 right-0 flex items-center pr-2 space-x-1">
-    <select class="schedule-duration-unit bg-gray-50 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 border-gray-300 disabled:opacity-70" disabled>
-      <option value="minutes" ${
-        containerData?.schedule_duration_unit === "minutes" ? "selected" : ""
-      }>menit</option>
-      <option value="hours" ${
-        containerData?.schedule_duration_unit === "hours" ? "selected" : ""
-      }>jam</option>
-    </select>
-  </div>
+                <select class="schedule-duration-unit bg-gray-50 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 border-gray-300 disabled:opacity-70" disabled>
+                  <option value="minutes" ${
+                    containerData?.schedule_duration_unit === "minutes"
+                      ? "selected"
+                      : ""
+                  }>menit</option>
+                  <option value="hours" ${
+                    containerData?.schedule_duration_unit === "hours"
+                      ? "selected"
+                      : ""
+                  }>jam</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -497,7 +501,7 @@ function createContainer(containerData) {
       durationUnit.disabled = false;
       durationInput.classList.remove("bg-gray-50");
       durationInput.value = containerData.schedule_duration;
-      durationInput.value = containerData.schedule_duration_unit;
+      durationUnit.value = containerData.schedule_duration_unit;
     }
   }
 
@@ -531,6 +535,7 @@ function createContainer(containerData) {
       durationSwitch.checked = false;
       startInput.disabled = true;
       durationInput.disabled = true;
+      durationUnit.disabled = true;
       startInput.classList.add("bg-gray-50");
       durationInput.classList.add("bg-gray-50");
       startInput.value = "";
@@ -622,10 +627,10 @@ function createContainer(containerData) {
   if (scheduleDurationEnabled) {
     durationSwitch.checked = true;
     durationInput.disabled = false;
-    durationInput.disabled = false;
+    durationUnit.disabled = false;
     durationInput.classList.remove("bg-gray-50");
     durationInput.value = containerData.schedule_duration;
-    durationInput.value = containerData.schedule_duration_unit;
+    durationUnit.value = containerData.schedule_duration_unit;
   }
 
   selectVideoBtn.addEventListener("click", async () => {
@@ -972,9 +977,13 @@ function addStartStream(container) {
     const scheduledTime = isScheduled
       ? new Date(startInput.value).getTime()
       : null;
-    const duration = hasDuration
-      ? parseInt(durationInput.value) * 60 * 1000
-      : null; // Convert to milliseconds
+
+    const rawDuration = parseInt(durationInput.value, 10);
+    const duration =
+      hasDuration && !isNaN(rawDuration)
+        ? rawDuration *
+          (durationUnit.value === "hours" ? 3600 * 1000 : 60 * 1000)
+        : null;
 
     if (isScheduled) {
       const now = new Date().getTime();

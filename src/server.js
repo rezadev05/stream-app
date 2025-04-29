@@ -1002,7 +1002,9 @@ app.post(
             10
           ),
           schedule_start,
-          schedule_duration: duration ? Math.floor(duration / 1000 / 60) : null,
+          schedule_duration: schedule_duration
+            ? parseInt(schedule_duration, 10)
+            : null,
           schedule_duration_unit: schedule_duration_unit || null,
         };
 
